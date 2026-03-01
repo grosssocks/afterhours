@@ -14,6 +14,15 @@ export const viewport = {
   viewportFit: "cover",
 };
 
+export const metadata = {
+  title: "after hours",
+  description: "Real Time Emotion Tracking. Zero Judgment",
+  icons: {
+    icon: "/Image.png",
+  },
+  appleTouchIcon: "/Image.png",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
