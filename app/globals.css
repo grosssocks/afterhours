@@ -42,6 +42,14 @@ body {
   }
 }
 
+/* Footer credits: show chat bubbles on touch/small screens (no hover on phone) */
+@media (max-width: 768px) {
+  .credits-bubble {
+    display: block !important;
+    opacity: 1 !important;
+  }
+}
+
 .response-msg {
   animation: fadeIn 0.35s ease-out;
 }
