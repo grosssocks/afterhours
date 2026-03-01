@@ -1,36 +1,44 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# after hours
 
-## Getting Started
+**Real Time Emotion Tracking. Zero Judgment.**
 
-First, run the development server:
+A tiny internet experiment for logging your day in one line at a time—mood, meals, sleep, work, or anything. Your path updates as you go.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## What after hours provides
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **One-line logging** — Drop a pin with a short note. No forms, no categories to pick. Type like you’re texting a friend (e.g. “had a good run”, “stressed about work”, “slept badly”).
+- **Real-time sentiment** — Entries are analyzed for tone (good / neutral / low) so your route reflects how you’re doing without any judgment.
+- **Smart intent** — The app infers category from your words (exercise, food, mood, sleep, work, social, hobby, health, or general note) so you get relevant emojis and a calmer, more positive background when things trend up.
+- **Your route** — A chronological, day-by-day log with timestamps and emojis. Switch between “Your route” and “Archive” to see active vs archived entries.
+- **Per-entry actions** — Edit, share (copy, Twitter, WhatsApp), or archive any entry. Restore from archive when needed.
+- **Activity calendar** — A 26-week calendar view of your activity (from the header menu).
+- **Day end** — Add “Day ended” to close the day and get a short celebration.
+- **Evolving background** — The background shifts with your recent entries (lush, rainy, calm, sunset, night, ocean, or neutral) for a calm, responsive feel.
+- **Stats** — “X this week” and archive count so you see volume at a glance.
+- **No account** — Everything is stored in your browser (localStorage). No sign-up, no server account.
+- **Responsive** — Works on mobile and desktop. Footer credits show GitHub handles on hover (desktop) or always on small screens.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## App summary
 
-To learn more about Next.js, take a look at the following resources:
+after hours is a minimal mood and daily-log app. You add short, natural-language notes throughout the day. The app infers intent and sentiment, shows them in a timeline (“Your route”), and subtly changes the background based on recent mood. You can edit, share, or archive entries, view an activity calendar, and mark “Day ended” for a small close-of-day moment. All data stays local; there is no backend user account.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Tech stack
 
-## Deploy on Vercel
+- **Next.js 16** (App Router)
+- **React 19**
+- **TypeScript**
+- **Tailwind CSS 4**
+- **Sentiment** (AFINN-based sentiment for the API)
+- **Vercel** (deployment)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## License
+
+Private / unlicensed. Use and fork as you like; attribution appreciated.
