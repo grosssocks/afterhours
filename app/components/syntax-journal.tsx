@@ -1167,29 +1167,37 @@ export function SyntaxJournal() {
             </p>
             <p className="bg-gradient-to-r from-cyan-300 via-violet-300 to-pink-300 bg-clip-text text-xs font-normal text-transparent sm:text-sm">
               a tiny internet experiment by{" "}
-              <span className="group relative inline-block cursor-default">
-                <span className="bg-gradient-to-r from-cyan-300 via-violet-300 to-pink-300 bg-clip-text text-transparent">harsha</span>
+              <span className="group relative inline-block">
+                <a
+                  href="https://github.com/foggyhead"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-gradient-to-r from-cyan-300 via-violet-300 to-pink-300 bg-clip-text text-transparent hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-white/30 focus:ring-offset-2 focus:ring-offset-[#0f0f12] rounded"
+                  aria-label="Harsha's GitHub @foggyhead"
+                >
+                  harsha
+                </a>
                 <span className="credits-bubble absolute bottom-full left-1/2 z-50 mb-1 hidden -translate-x-1/2 whitespace-nowrap opacity-0 transition-opacity duration-200 group-hover:block group-hover:opacity-100" aria-hidden>
                   <span className="block rounded-lg border border-white/20 bg-zinc-800/95 px-3 py-2 shadow-lg backdrop-blur-sm">
-                    <span className="text-cyan-300">
-                      <a href="https://github.com/foggyhead" aria-label="Harsha's GitHub profile">
-                        @foggyhead
-                      </a>
-                    </span>
+                    <span className="text-cyan-300">@foggyhead</span>
                   </span>
                   <span className="credits-arrow absolute left-1/2 top-full h-0 w-0 -translate-x-1/2 border-[6px] border-transparent border-t-zinc-800" aria-hidden style={{ filter: "drop-shadow(0 1px 0 rgba(255,255,255,0.1))" }} />
                 </span>
               </span>
               {" & "}
-              <span className="group relative inline-block cursor-default">
-                <span className="bg-gradient-to-r from-cyan-300 via-violet-300 to-pink-300 bg-clip-text text-transparent">sujita</span>
+              <span className="group relative inline-block">
+                <a
+                  href="https://github.com/grosssocks"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-gradient-to-r from-cyan-300 via-violet-300 to-pink-300 bg-clip-text text-transparent hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-white/30 focus:ring-offset-2 focus:ring-offset-[#0f0f12] rounded"
+                  aria-label="Sujita's GitHub @grosssocks"
+                >
+                  sujita
+                </a>
                 <span className="credits-bubble absolute bottom-full left-1/2 z-50 mb-1 hidden -translate-x-1/2 whitespace-nowrap opacity-0 transition-opacity duration-200 group-hover:block group-hover:opacity-100" aria-hidden>
                   <span className="block rounded-lg border border-white/20 bg-zinc-800/95 px-3 py-2 shadow-lg backdrop-blur-sm">
-                    <span className="text-pink-300">
-                      <a href="https://github.com/grosssocks" aria-label="Sujita's GitHub profile">
-                        @grosssocks
-                      </a>
-                    </span>
+                    <span className="text-pink-300">@grosssocks</span>
                   </span>
                   <span className="credits-arrow absolute left-1/2 top-full h-0 w-0 -translate-x-1/2 border-[6px] border-transparent border-t-zinc-800" aria-hidden style={{ filter: "drop-shadow(0 1px 0 rgba(255,255,255,0.1))" }} />
                 </span>
