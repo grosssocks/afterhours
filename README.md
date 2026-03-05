@@ -10,10 +10,10 @@ A tiny internet experiment for logging your day in one line at a time—mood, me
 
 - **One-line logging** — Drop a pin with a short note. No forms, no categories to pick. Type like you’re texting a friend (e.g. “had a good run”, “stressed about work”, “slept badly”).
 - **Real-time sentiment** — Entries are analyzed for tone (good / neutral / low) so your route reflects how you’re doing without any judgment.
-- **Smart intent** — The app infers category from your words (exercise, food, mood, sleep, work, social, hobby, health, or general note) so you get relevant emojis and a calmer, more positive background when things trend up.
+- **Smart intent** — The app infers category from your words (exercise, food, mood, sleep, work, social, hobby, health, or general note). Logged text is matched to emojis via the Emojiscribe API (with a local fallback by category/sentiment), and the background shifts to a calmer, more positive vibe when things trend up.
 - **Your route** — A chronological, day-by-day log with timestamps and emojis. Switch between “Your route” and “Archive” to see active vs archived entries.
 - **Per-entry actions** — Edit, share (copy, Twitter, WhatsApp), or archive any entry. Restore from archive when needed.
-- **Activity calendar** — A 26-week calendar view of your activity (from the header menu).
+- **Activity calendar** — A compact, horizontal calendar for the last 6 months (from the header). Shows year, weekday labels (M–S), and months as columns with square, rounded day cells. Each cell reflects activity that day.
 - **Day end** — Add “Day ended” to close the day and get a short celebration.
 - **Evolving background** — The background shifts with your recent entries (lush, rainy, calm, sunset, night, ocean, or neutral) for a calm, responsive feel.
 - **Stats** — “X this week” and archive count so you see volume at a glance.
@@ -35,6 +35,7 @@ after hours is a minimal mood and daily-log app. You add short, natural-language
 - **TypeScript**
 - **Tailwind CSS 4**
 - **Sentiment** (AFINN-based sentiment for the API)
+- **Emojiscribe** (word-to-emoji matching via `/api/emoji` proxy; fallback to local category/sentiment emojis)
 - **Vercel** (deployment)
 
 ---

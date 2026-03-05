@@ -8,6 +8,11 @@
   --color-border: #27272a;
 }
 
+html {
+  scroll-behavior: smooth;
+  overscroll-behavior: none;
+}
+
 :root {
   --color-background: #0f0f12;
   --color-foreground: #f4f4f5;

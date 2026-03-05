@@ -35,6 +35,7 @@ type LogEntry = {
   intent: MappedIntent;
   at: number;
   archived?: boolean;
+  emoji?: string | null; // from Emojiscribe API when set
 };
 
 const STORAGE_KEY = "syntax-daily-log";
@@ -95,12 +96,12 @@ function getVibeFromLogs(entries: LogEntry[]): Vibe {
   return "neutral";
 }
 
-const STREAK_CALENDAR_WEEKS = 26;
-const STREAK_DAYS = STREAK_CALENDAR_WEEKS * 7;
-const CALENDAR_CELL_SIZE = 8;
-const CALENDAR_GAP = 2;
-const CALENDAR_MONTH_LABEL_WIDTH = 28;
-const CALENDAR_COLS = 31;
+const CALENDAR_MONTHS = 6; // last 6 months
+const CALENDAR_CELL_SIZE = 10; // square cells
+const CALENDAR_GAP = 4;
+const CALENDAR_MONTH_LABEL_WIDTH = 14;
+const WEEKDAY_LABELS = ["M", "T", "W", "T", "F", "S", "S"]; // Monday first
+const MAX_WEEKS_PER_MONTH = 5;
 
 function getActivityByDay(entries: LogEntry[]): Map<string, number> {
   const byDay = new Map<string, number>();
@@ -135,13 +136,34 @@ function getMonthsInRange(start: Date, end: Date): { year: number; month: number
   return out;
 }
 
+// Monday = 0, Sunday = 6 (for row index)
+function getWeekdayRow(d: Date): number {
+  return (d.getDay() + 6) % 7;
+}
+
+function getDatesForWeekdayInMonth(
+  year: number,
+  month: number,
+  weekdayRow: number,
+  firstDay: number,
+  lastDay: number
+): number[] {
+  const out: number[] = [];
+  for (let day = firstDay; day <= lastDay; day++) {
+    const d = new Date(year, month, day);
+    if (getWeekdayRow(d) === weekdayRow) out.push(day);
+  }
+  return out;
+}
+
 function StreakCalendar({ entries, compact = false }: { entries: LogEntry[]; compact?: boolean }) {
   const activityByDay = getActivityByDay(entries);
   const today = new Date();
   const todayKey = today.toDateString();
-  const start = new Date(today);
-  start.setDate(start.getDate() - STREAK_DAYS + 1);
+  const start = new Date(today.getFullYear(), today.getMonth() - (CALENDAR_MONTHS - 1), 1);
   const months = getMonthsInRange(start, today);
+  const years = Array.from(new Set(months.map((m) => m.year))).sort((a, b) => a - b);
+  const yearLabel = years.length > 1 ? `${years[0]} – ${years[1]}` : String(years[0]);
 
   const getLevel = (count: number) => {
     if (count === 0) return 0;
@@ -150,112 +172,126 @@ function StreakCalendar({ entries, compact = false }: { entries: LogEntry[]; com
     return count;
   };
 
-  const size = compact ? CALENDAR_CELL_SIZE : 12;
-  const gap = compact ? CALENDAR_GAP : 3;
-  const gridWidth =
-    CALENDAR_COLS * size + (CALENDAR_COLS - 1) * gap;
-  const totalWidth = compact
-    ? CALENDAR_MONTH_LABEL_WIDTH + gap + gridWidth
-    : undefined;
+  const cellSize = compact ? CALENDAR_CELL_SIZE : 12;
+  const gap = compact ? CALENDAR_GAP : 5;
+  const numMonths = months.length;
+  // Each month column = 5 day cells in a row (horizontal layout for wide, short calendar)
+  const monthColWidth = 5 * cellSize + 4 * gap;
+  const gridWidth = numMonths * monthColWidth + (numMonths - 1) * gap;
+  const totalWidth = compact ? CALENDAR_MONTH_LABEL_WIDTH + gap + gridWidth : undefined;
 
   return (
     <div
-      className={
-        compact
-          ? "flex flex-col px-3 py-2.5"
-          : "w-full max-w-lg"
-      }
+      className={compact ? "flex flex-col px-4 py-3" : "w-full max-w-lg"}
       style={compact ? { width: totalWidth, minWidth: totalWidth } : undefined}
     >
       {compact && (
-        <p
-          className="mb-1.5 text-[10px] text-white/40"
-          style={{ paddingLeft: CALENDAR_MONTH_LABEL_WIDTH + gap }}
-          aria-hidden
-        >
-          Less ← → More
-        </p>
+        <>
+          <p className="mb-2 text-[10px] text-white/50 font-medium tabular-nums" aria-hidden>
+            {yearLabel}
+          </p>
+          {/* Month headers (columns) */}
+          <div
+            className="flex items-center mb-2"
+            style={{ gap: `${gap}px` }}
+            aria-hidden
+          >
+            <span style={{ width: CALENDAR_MONTH_LABEL_WIDTH }} />
+            <div className="flex shrink-0" style={{ gap: `${gap}px` }}>
+              {months.map(({ year, month, label }) => (
+                <span
+                  key={`${year}-${month}`}
+                  className="text-[10px] text-white/50 text-center shrink-0"
+                  style={{ width: monthColWidth }}
+                >
+                  {label}
+                </span>
+              ))}
+            </div>
+          </div>
+          <p
+            className="mb-2 text-[9px] text-white/40"
+            style={{ paddingLeft: CALENDAR_MONTH_LABEL_WIDTH + gap }}
+            aria-hidden
+          >
+            Less ← → More
+          </p>
+        </>
       )}
+      {/* Grid: 7 rows (weekdays) × N columns (months) */}
       <div
         className="flex flex-col overflow-hidden"
         style={{ gap: `${gap}px` }}
-        aria-label="Activity calendar by month, last 26 weeks"
+        aria-label="Activity calendar by month, last 6 months"
       >
-        {[...months].reverse().map(({ year, month, label, firstDay, lastDay }) => {
-          const dayCount = lastDay - firstDay + 1;
-          const padStart = firstDay - 1;
-          const padEnd = CALENDAR_COLS - lastDay;
-          return (
-            <div
-              key={`${year}-${month}`}
-              className="flex items-center"
-              style={{ gap: `${gap}px` }}
+        {WEEKDAY_LABELS.map((weekdayLabel, weekdayRow) => (
+          <div
+            key={weekdayRow}
+            className="flex items-center"
+            style={{ gap: `${gap}px` }}
+          >
+            <span
+              className="text-[9px] text-white/40 shrink-0 text-center tabular-nums"
+              style={{ width: CALENDAR_MONTH_LABEL_WIDTH, lineHeight: `${cellSize}px` }}
+              aria-hidden
             >
-              <span
-                className="text-[10px] text-white/50 tabular-nums shrink-0 text-right"
-                style={{ width: CALENDAR_MONTH_LABEL_WIDTH }}
-                aria-hidden
-              >
-                {label}
-              </span>
-              <div
-                className="grid shrink-0"
-                style={{
-                  gridTemplateColumns: `repeat(${CALENDAR_COLS}, ${size}px)`,
-                  gap: `${gap}px`,
-                  width: gridWidth,
-                }}
-              >
-                {Array.from({ length: padStart }, (_, i) => (
+              {weekdayLabel}
+            </span>
+            <div className="flex shrink-0" style={{ gap: `${gap}px` }}>
+              {months.map(({ year, month, firstDay, lastDay }) => {
+                const dates = getDatesForWeekdayInMonth(year, month, weekdayRow, firstDay, lastDay);
+                return (
                   <div
-                    key={`pad-start-${year}-${month}-${i}`}
-                    className="rounded-[2px] border border-white/10"
-                    style={{ width: size, height: size, backgroundColor: "rgba(255,255,255,0.06)" }}
-                    aria-hidden
-                  />
-                ))}
-                {Array.from({ length: dayCount }, (_, i) => {
-                  const day = firstDay + i;
-                  const d = new Date(year, month, day);
-                  const dateKey = d.toDateString();
-                  const count = activityByDay.get(dateKey) ?? 0;
-                  const isToday = dateKey === todayKey;
-                  const level = getLevel(count);
-                  return (
-                    <div
-                      key={dateKey}
-                      className="rounded-[2px] border border-white/10"
-                      style={{
-                        width: size,
-                        height: size,
-                        backgroundColor:
-                          level === 0
-                            ? "rgba(255,255,255,0.06)"
-                            : level === 1
-                              ? "rgba(34, 197, 94, 0.4)"
-                              : level === 2
-                                ? "rgba(34, 197, 94, 0.6)"
-                                : level === 3
-                                  ? "rgba(34, 197, 94, 0.8)"
-                                  : "rgba(34, 197, 94, 1)",
-                        boxShadow: isToday ? "0 0 0 1px rgba(255,255,255,0.5)" : undefined,
-                      }}
-                      title={`${dateKey}${count > 0 ? ` · ${count} log${count !== 1 ? "s" : ""}` : ""}`}
-                    />
-                  );
-                })}
-                {Array.from({ length: padEnd }, (_, i) => (
-                  <div
-                    key={`pad-end-${year}-${month}-${i}`}
-                    className="rounded-[2px] border border-white/10"
-                    style={{ width: size, height: size, backgroundColor: "rgba(255,255,255,0.06)" }}
-                    aria-hidden
-                  />
-                ))}
-              </div>
+                    key={`${year}-${month}-${weekdayRow}`}
+                    className="flex flex-row shrink-0 items-center"
+                    style={{ gap: `${gap}px`, width: monthColWidth }}
+                  >
+                    {Array.from({ length: MAX_WEEKS_PER_MONTH }, (_, weekIdx) => {
+                      const day = dates[weekIdx];
+                      if (day === undefined) {
+                        return (
+                          <div
+                            key={`empty-${weekIdx}`}
+                            className="rounded-md border border-white/10 shrink-0"
+                            style={{ width: cellSize, height: cellSize, backgroundColor: "rgba(255,255,255,0.04)" }}
+                            aria-hidden
+                          />
+                        );
+                      }
+                      const d = new Date(year, month, day);
+                      const dateKey = d.toDateString();
+                      const count = activityByDay.get(dateKey) ?? 0;
+                      const isToday = dateKey === todayKey;
+                      const level = getLevel(count);
+                      return (
+                        <div
+                          key={dateKey}
+                          className="rounded-md border border-white/10 shrink-0"
+                          style={{
+                            width: cellSize,
+                            height: cellSize,
+                            backgroundColor:
+                              level === 0
+                                ? "rgba(255,255,255,0.06)"
+                                : level === 1
+                                  ? "rgba(34, 197, 94, 0.4)"
+                                  : level === 2
+                                    ? "rgba(34, 197, 94, 0.6)"
+                                    : level === 3
+                                      ? "rgba(34, 197, 94, 0.8)"
+                                      : "rgba(34, 197, 94, 1)",
+                            boxShadow: isToday ? "0 0 0 1px rgba(255,255,255,0.5)" : undefined,
+                          }}
+                          title={`${dateKey}${count > 0 ? ` · ${count} log${count !== 1 ? "s" : ""}` : ""}`}
+                        />
+                      );
+                    })}
+                  </div>
+                );
+              })}
             </div>
-          );
-        })}
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -421,6 +457,21 @@ function getEmojiForEntry(entry: LogEntry): string {
   return neutral[category] ?? "\u{1F4DD}"; // 📝
 }
 
+async function getEmojiForText(text: string): Promise<string | null> {
+  try {
+    const res = await fetch("/api/emoji", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text }),
+    });
+    if (!res.ok) return null;
+    const data = (await res.json()) as { emoji?: string | null };
+    return data.emoji ?? null;
+  } catch {
+    return null;
+  }
+}
+
 function getWeekStart(): number {
   const d = new Date();
   const day = d.getDay();
@@ -545,10 +596,13 @@ export function SyntaxJournal() {
     const intent = mapIntent(raw);
     const sentimentLabel = await getSentimentForText(raw);
     const intentWithSentiment = { ...intent, sentiment: sentimentLabel };
+    const emoji = await getEmojiForText(raw);
     if (editingId) {
       setEntries((prev) =>
         prev.map((e) =>
-          e.id === editingId ? { ...e, raw, intent: intentWithSentiment, at: e.at } : e
+          e.id === editingId
+            ? { ...e, raw, intent: intentWithSentiment, at: e.at, emoji: emoji ?? undefined }
+            : e
         )
       );
       setEditingId(null);
@@ -560,6 +614,7 @@ export function SyntaxJournal() {
           raw,
           intent: intentWithSentiment,
           at: Date.now(),
+          emoji: emoji ?? undefined,
         },
       ]);
       const msg = pickResponse(intentWithSentiment);
@@ -879,7 +934,7 @@ export function SyntaxJournal() {
                       <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
                     </svg>
                   </button>
-                  <div className={`absolute right-0 top-full z-40 mt-2 max-h-[min(80vh,400px)] max-w-[min(100vw-2rem,340px)] overflow-auto transition-all duration-150 ${calendarOpen ? "opacity-100 visible pointer-events-auto" : "opacity-0 invisible pointer-events-none group-hover:opacity-100 group-hover:visible group-hover:pointer-events-auto"}`}>
+                  <div className={`absolute right-0 top-full z-40 mt-2 max-h-[min(80vh,420px)] max-w-[min(100vw-2rem,520px)] overflow-auto transition-all duration-150 ${calendarOpen ? "opacity-100 visible pointer-events-auto" : "opacity-0 invisible pointer-events-none group-hover:opacity-100 group-hover:visible group-hover:pointer-events-auto"}`}>
                     <div className="rounded-xl border border-white/15 bg-black/95 p-2 sm:p-2.5 shadow-xl">
                       <div className="rounded-lg border border-white/10 bg-black/30 overflow-hidden">
                         <StreakCalendar entries={entries} compact />
@@ -1057,7 +1112,7 @@ export function SyntaxJournal() {
                             className={`path-node flex h-8 w-8 shrink-0 items-center justify-center rounded-full border bg-[var(--color-background)] text-base ${entry.raw === DAY_END_RAW ? "border-2 border-white/40 ring-2 ring-white/10" : "border border-white/25"}`}
                             aria-hidden
                           >
-                            {getEmojiForEntry(entry)}
+                            {entry.emoji ?? getEmojiForEntry(entry)}
                           </span>
                           <article className="path-log min-w-0 shrink-0 border-l border-white/15 pl-4">
                             <div className="flex flex-wrap items-center gap-2">
@@ -1204,7 +1259,7 @@ export function SyntaxJournal() {
               </span>
             </p>
             <p className="text-xs text-white/50 sm:text-sm">
-              © {new Date().getFullYear()}
+              © {new Date().getFullYear()} All Rights Reserved.
             </p>
           </div>
           <div className="footer-cart-track mt-4 w-full overflow-hidden" aria-hidden>
